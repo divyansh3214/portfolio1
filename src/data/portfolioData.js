@@ -42,24 +42,17 @@ export const portfolioData = {
   certifications: [
     {
       id: 1,
-      title: "SQL (Advanced)",
-      issuer: "HackerRank",
+      title: "Data Structures & Algorithms",
+      issuer: "Coding Ninjas",
       date: "Mar 2026",
-      color: "#00EA64"
+      color: "#F5A623"
     },
     {
-      id: 3,
-      title: "Claude with the Anthropic API",
-      issuer: "Anthropic Academy",
+      id: 2,
+      title: "Web Technologies",
+      issuer: "Udemy",
       date: "Mar 2026",
-      color: "#cc785c"
+      color: "#A435F0"
     },
-    {
-      id: 5,
-      title: "OCI AI Foundations Associate",
-      issuer: "Oracle",
-      date: "Apr 2026",
-      color: "#F80000"
-    }
   ]
 };
