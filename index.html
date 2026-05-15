@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Divyansh Sharma | Portfolio</title>
+  <meta name="description" content="Divyansh Sharma – BTech CSE Student at JIIT Noida. Building intelligent systems at the intersection of full-stack development and machine learning.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&family=Comfortaa:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./src/styles/style.css">
+</head>
+<body>
+
+  <!-- Custom Cursor -->
+  <div id="cursor-dot"></div>
+  <div id="cursor-ring"></div>
+  <div id="cursor-glow"></div>
+
+  <!-- Stars -->
+  <div class="stars-bg"></div>
+
+  <!-- Full-page canvas for galaxy + shooting stars (fixed, persists on scroll) -->
+  <canvas id="space-canvas"></canvas>
+
+  <!-- Navbar -->
+  <nav>
+    <a href="#hero" class="nav-brand">divyanshcmd.me</a>
+    <div class="nav-home-btn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00d9ff" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+    </div>
+    <div class="nav-divider"></div>
+    <a href="#projects" class="nav-link ripple-host">Projects</a>
+    <a href="#certs"    class="nav-link ripple-host">Credentials</a>
+    <a href="#about"    class="nav-link ripple-host">Forge</a>
+    <a href="#about"    class="nav-link ripple-host">Persona</a>
+  </nav>
+
+  <!-- ── Hero ─────────────────────────────────────────────────────────── -->
+  <section id="hero">
+    <!-- Orbit System -->
+    <div class="orbit-system" id="orbit-system">
+      <div class="orbit-ring orbit-ring-1"></div>
+      <div class="orbit-ring orbit-ring-2"></div>
+      <div class="orbit-ring orbit-ring-3"></div>
+      <div class="orbit-ring orbit-ring-4"></div>
+      <div class="center-glow"></div>
+      <!-- Tech icons injected by JS -->
+    </div>
+
+    <!-- Hero Text -->
+    <div class="hero-content">
+      <p class="hello-label">HELLO! I'M</p>
+
+      <h1 class="hero-name" id="user-name">Ayush Raj</h1>
+
+      <p class="hero-subtitle">
+        A passionate <span class="cyan">Full-Stack</span> &amp; <span class="amber">ML</span> Developer
+      </p>
+
+      <!-- Cycling large word -->
+      <div class="big-word-wrapper">
+        <span class="big-word state-visible" id="big-word">DEVELOPER</span>
+      </div>
+
+      <!-- Pulse bar indicator -->
+      <div class="pulse-bar" id="pulse-bar">
+        <div class="bar-active" id="pulse-active"></div>
+        <div class="bar-dot"></div>
+        <div class="bar-dot"></div>
+        <div class="bar-dot"></div>
+      </div>
+
+      <p class="hero-desc" id="user-about">
+        Building intelligent systems at the intersection of
+        <strong>full-stack development</strong> and <strong>machine learning</strong>.
+      </p>
+
+      <div class="cta-group">
+        <a href="#" id="lounge-btn" class="btn-primary ripple-host">⚡ Lounge</a>
+        <a href="#" class="btn-secondary ripple-host">📄 Resume &amp; CV</a>
+        <a href="https://github.com/ayushcmd" target="_blank" class="btn-outline ripple-host">🔗 Get Source</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Projects ──────────────────────────────────────────────────────── -->
+  <section id="projects">
+    <div class="container">
+      <p class="section-tag">WHAT I'VE BUILT</p>
+      <h2 class="section-title">Featured Projects</h2>
+      <div class="grid-2" id="projects-grid"></div>
+    </div>
+  </section>
+
+  <!-- ── Credentials ───────────────────────────────────────────────────── -->
+  <section id="certs">
+    <div class="container">
+      <p class="section-tag">ACHIEVEMENTS</p>
+      <h2 class="section-title">Certifications</h2>
+      <div class="grid-2" id="certs-grid"></div>
+    </div>
+  </section>
+
+  <!-- ── Reach Out ──────────────────────────────────────────────────────── -->
+  <section id="reach-out">
+    <div class="container">
+      <p class="section-tag">SKILLS · WORKFLOW · IDENTITY</p>
+      <h2 class="section-title">Reach Out</h2>
+
+      <div class="reach-card">
+        <!-- Mini galaxy canvas inside card -->
+        <canvas id="reach-galaxy"></canvas>
+
+        <div class="reach-inner">
+          <!-- Workflow Steps -->
+          <p class="reach-sub-label">WORKFLOW</p>
+          <div class="workflow-row">
+
+            <div class="workflow-step" data-theme="amber">
+              <div class="wf-icon-wrap">
+                <div class="wf-icon">💡</div>
+              </div>
+              <span class="wf-label">IDEA</span>
+            </div>
+
+            <div class="wf-connector" data-from="amber" data-to="orange"></div>
+
+            <div class="workflow-step" data-theme="orange">
+              <div class="wf-icon-wrap">
+                <div class="wf-icon">📋</div>
+              </div>
+              <span class="wf-label">PLAN</span>
+            </div>
+
+            <div class="wf-connector" data-from="orange" data-to="purple"></div>
+
+            <div class="workflow-step" data-theme="purple">
+              <div class="wf-icon-wrap">
+                <div class="wf-icon">🧠</div>
+              </div>
+              <span class="wf-label">AI HELP</span>
+            </div>
+
+            <div class="wf-connector" data-from="purple" data-to="cyan"></div>
+
+            <div class="workflow-step active" data-theme="cyan">
+              <div class="wf-icon-wrap">
+                <div class="wf-icon">&lt;/&gt;</div>
+              </div>
+              <span class="wf-label">CODE</span>
+            </div>
+
+            <div class="wf-connector" data-from="cyan" data-to="magenta"></div>
+
+            <div class="workflow-step" data-theme="magenta">
+              <div class="wf-icon-wrap">
+                <div class="wf-icon">🔍</div>
+              </div>
+              <span class="wf-label">REVIEW</span>
+            </div>
+
+            <div class="wf-connector" data-from="magenta" data-to="red"></div>
+
+            <div class="workflow-step" data-theme="red">
+              <div class="wf-icon-wrap">
+                <div class="wf-icon">🧪</div>
+              </div>
+              <span class="wf-label">TEST</span>
+            </div>
+
+            <div class="wf-connector" data-from="red" data-to="gray"></div>
+
+            <div class="workflow-step" data-theme="gray">
+              <div class="wf-icon-wrap">
+                <div class="wf-icon">📖</div>
+              </div>
+              <span class="wf-label">LEARN</span>
+            </div>
+
+          </div>
+
+          <!-- Divider -->
+          <div class="reach-divider"></div>
+
+          <!-- Contact -->
+          <p class="reach-sub-label">HIT ME UP</p>
+          <div class="contact-row">
+            <a href="mailto:divyansh@example.com" class="contact-btn contact-mail ripple-host">
+              <span class="contact-icon">✉️</span> Mail
+            </a>
+            <a href="https://github.com" target="_blank" class="contact-btn contact-github ripple-host">
+              <span class="contact-icon">🐙</span> GitHub
+            </a>
+            <a href="https://linkedin.com" target="_blank" class="contact-btn contact-linkedin ripple-host">
+              <span class="contact-icon">🔗</span> LinkedIn
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Footer ────────────────────────────────────────────────────────── -->
+  <footer>
+    <div class="container">
+      <p>&copy; 2026 Divyansh Sharma — built with precision &amp; passion.</p>
+    </div>
+  </footer>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
