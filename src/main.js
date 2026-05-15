@@ -2,20 +2,21 @@ import { portfolioData } from './data/portfolioData.js';
 import { gsap } from 'gsap';
 import Lenis from 'lenis';
 
+// ─── Touch / Mobile Detection ──────────────────────────────────────────────────
+const isTouchDevice = window.matchMedia('(hover: none)').matches || 'ontouchstart' in window;
+
 // ─── 0-A. LENIS SMOOTH SCROLL ──────────────────────────────────────────────────
 const lenis = new Lenis({
-  duration:  1.4,          // scroll animation duration (seconds)
-  easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),  // expo ease-out
+  duration:  1.4,
+  easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
   smooth: true,
-  smoothTouch: false,      // disable on touch (native is better there)
+  smoothTouch: false,
   touchMultiplier: 2,
 });
 
-// Plug Lenis into GSAP ticker so they share the same RAF loop
 gsap.ticker.add((time) => lenis.raf(time * 1000));
-gsap.ticker.lagSmoothing(0);   // prevent GSAP from compensating large frames
+gsap.ticker.lagSmoothing(0);
 
-// Native smooth anchor scroll via Lenis
 document.querySelectorAll('a[href^="#"]').forEach(a => {
   a.addEventListener('click', (e) => {
     const target = document.querySelector(a.getAttribute('href'));
@@ -24,6 +25,19 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
       lenis.scrollTo(target, { offset: -80, duration: 1.4 });
     }
   });
+});
+
+// ─── 0-A2. HERO ENTRANCE ANIMATION ────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+  tl
+    .from('.hello-label',   { opacity: 0, y: 24, duration: 0.7 })
+    .from('.hero-name',     { opacity: 0, y: 30, duration: 0.8, scale: 0.96 }, '-=0.4')
+    .from('.hero-subtitle', { opacity: 0, y: 20, duration: 0.65 }, '-=0.4')
+    .from('.big-word-wrapper', { opacity: 0, scale: 0.85, duration: 0.8, ease: 'back.out(1.7)' }, '-=0.3')
+    .from('.pulse-bar',     { opacity: 0, y: 10, duration: 0.5 }, '-=0.3')
+    .from('.hero-desc',     { opacity: 0, y: 18, duration: 0.6 }, '-=0.35')
+    .from('.cta-group > *', { opacity: 0, y: 16, stagger: 0.12, duration: 0.55, ease: 'back.out(1.4)' }, '-=0.35');
 });
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -242,51 +256,66 @@ function renderSpace() {
 renderSpace();
 
 
-// ─── 1. CUSTOM CURSOR ──────────────────────────────────────────────────────────
-const cursorDot  = document.getElementById('cursor-dot');
-const cursorRing = document.getElementById('cursor-ring');
-const cursorGlow = document.getElementById('cursor-glow');
+// ─── 1. CUSTOM CURSOR (desktop only) ───────────────────────────────────────────
+if (!isTouchDevice) {
+  const cursorDot  = document.getElementById('cursor-dot');
+  const cursorRing = document.getElementById('cursor-ring');
+  const cursorGlow = document.getElementById('cursor-glow');
 
-let mouseX = window.innerWidth  / 2;
-let mouseY = window.innerHeight / 2;
-let ringX  = mouseX, ringY = mouseY;
-let glowX  = mouseX, glowY = mouseY;
+  let mouseX = window.innerWidth  / 2;
+  let mouseY = window.innerHeight / 2;
+  let ringX  = mouseX, ringY = mouseY;
+  let glowX  = mouseX, glowY = mouseY;
 
-// The dot snaps instantly to the mouse
-window.addEventListener('mousemove', (e) => {
-  mouseX = e.clientX;
-  mouseY = e.clientY;
-  gsap.set(cursorDot, { x: mouseX, y: mouseY });
-});
+  window.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    gsap.set(cursorDot, { x: mouseX, y: mouseY });
+  });
 
-// The ring and glow lag behind (lerp)
-gsap.ticker.add(() => {
-  const lerpRing = 0.12;
-  const lerpGlow = 0.06;
+  gsap.ticker.add(() => {
+    const lerpRing = 0.12;
+    const lerpGlow = 0.06;
+    ringX += (mouseX - ringX) * lerpRing;
+    ringY += (mouseY - ringY) * lerpRing;
+    gsap.set(cursorRing, { x: ringX, y: ringY });
+    glowX += (mouseX - glowX) * lerpGlow;
+    glowY += (mouseY - glowY) * lerpGlow;
+    gsap.set(cursorGlow, { x: glowX, y: glowY });
+  });
 
-  ringX += (mouseX - ringX) * lerpRing;
-  ringY += (mouseY - ringY) * lerpRing;
-  gsap.set(cursorRing, { x: ringX, y: ringY });
+  const interactiveEls = 'a, button, [data-hover]';
+  document.addEventListener('mouseover', (e) => {
+    if (e.target.closest(interactiveEls)) {
+      gsap.to(cursorRing, { width: 54, height: 54, borderColor: 'rgba(0,217,255,0.55)', duration: 0.25 });
+      gsap.to(cursorDot,  { scale: 1.5, duration: 0.25 });
+    }
+  });
+  document.addEventListener('mouseout', (e) => {
+    if (e.target.closest(interactiveEls)) {
+      gsap.to(cursorRing, { width: 40, height: 40, borderColor: 'rgba(255,255,255,0.18)', duration: 0.25 });
+      gsap.to(cursorDot,  { scale: 1, duration: 0.25 });
+    }
+  });
+} // end cursor block
 
-  glowX += (mouseX - glowX) * lerpGlow;
-  glowY += (mouseY - glowY) * lerpGlow;
-  gsap.set(cursorGlow, { x: glowX, y: glowY });
-});
-
-// Scale up ring when hovering interactive elements
-const interactiveEls = 'a, button, [data-hover]';
-document.addEventListener('mouseover', (e) => {
-  if (e.target.closest(interactiveEls)) {
-    gsap.to(cursorRing, { width: 54, height: 54, borderColor: 'rgba(0,217,255,0.55)', duration: 0.25 });
-    gsap.to(cursorDot,  { scale: 1.5, duration: 0.25 });
-  }
-});
-document.addEventListener('mouseout', (e) => {
-  if (e.target.closest(interactiveEls)) {
-    gsap.to(cursorRing, { width: 40, height: 40, borderColor: 'rgba(255,255,255,0.18)', duration: 0.25 });
-    gsap.to(cursorDot,  { scale: 1, duration: 0.25 });
-  }
-});
+// ─── CURSOR SPARKLE TRAIL (desktop only) ───────────────────────────────────────
+if (!isTouchDevice) {
+  const SPARKLE_COLORS = ['#00d9ff','#f59e0b','#a855f7','#84cc16','#ec4899'];
+  let sparkleThrottle = 0;
+  window.addEventListener('mousemove', (e) => {
+    const now = Date.now();
+    if (now - sparkleThrottle < 60) return;
+    sparkleThrottle = now;
+    const s = document.createElement('div');
+    s.className = 'cursor-sparkle';
+    const sz = 4 + Math.random() * 5;
+    const color = SPARKLE_COLORS[Math.floor(Math.random() * SPARKLE_COLORS.length)];
+    s.style.cssText = `left:${e.clientX}px;top:${e.clientY}px;width:${sz}px;height:${sz}px;background:${color};box-shadow:0 0 ${sz*2}px ${color};`;
+    document.body.appendChild(s);
+    setTimeout(() => s.remove(), 700);
+  });
+}
 
 // ─── RIPPLE on click ───────────────────────────────────────────────────────────
 document.addEventListener('click', (e) => {
@@ -319,6 +348,23 @@ document.querySelectorAll('.nav-link').forEach(link => {
     setTimeout(() => wave.remove(), 600);
   });
 });
+
+// ─── MOBILE NAV TOGGLE ─────────────────────────────────────────────────────────
+const navToggle = document.getElementById('nav-toggle');
+const navEl     = document.querySelector('nav');
+if (navToggle && navEl) {
+  navToggle.addEventListener('click', () => {
+    navToggle.classList.toggle('active');
+    navEl.classList.toggle('nav-open');
+  });
+  // Auto-close mobile menu when a link is tapped
+  navEl.querySelectorAll('.nav-link').forEach(link => {
+    link.addEventListener('click', () => {
+      navToggle.classList.remove('active');
+      navEl.classList.remove('nav-open');
+    });
+  });
+}
 
 // ─── 2. DATA INJECTION ─────────────────────────────────────────────────────────
 document.getElementById('user-name').textContent  = portfolioData.name;
@@ -367,11 +413,18 @@ const techItems = [
   { name: 'Git',        orbit: 4, startAngle: -60,  speed: 180, iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg' },
 ];
 
-// Orbit radii matching the ring sizes in CSS  
-const RADII = { 1: 160, 2: 270, 3: 385, 4: 505 };
+// Orbit radii — responsive based on viewport width
+function getOrbitRadii() {
+  const w = window.innerWidth;
+  if (w <= 360) return { 1: 70,  2: 110, 3: 0,   4: 0 };
+  if (w <= 480) return { 1: 90,  2: 140, 3: 0,   4: 0 };
+  if (w <= 768) return { 1: 110, 2: 180, 3: 0,   4: 0 };
+  if (w <= 1024) return { 1: 140, 2: 240, 3: 300, 4: 390 };
+  return { 1: 160, 2: 270, 3: 385, 4: 505 };
+}
+let RADII = getOrbitRadii();
 
 techItems.forEach((tech) => {
-  // Create icon element
   const iconEl = document.createElement('div');
   iconEl.className = 'tech-icon';
   iconEl.setAttribute('data-hover', 'true');
@@ -384,7 +437,6 @@ techItems.forEach((tech) => {
   img.alt = tech.name;
   img.width = 28;
   img.height = 28;
-  // Fallback if image fails
   img.onerror = () => {
     img.style.display = 'none';
     card.innerHTML = `<span style="font-size:9px;font-weight:700;color:rgba(0,217,255,0.8)">${tech.name.slice(0,3)}</span>`;
@@ -399,12 +451,13 @@ techItems.forEach((tech) => {
   iconEl.appendChild(label);
   orbitSystem.appendChild(iconEl);
 
+  // Hide icons on orbits that don't fit the current viewport
   const radius = RADII[tech.orbit];
+  if (radius === 0) { iconEl.style.display = 'none'; }
+
   const startRad = (tech.startAngle * Math.PI) / 180;
   const state = { angle: startRad };
   const fullCircle = Math.PI * 2;
-  // Speed: full revolution in `speed` seconds (positive = counter-clockwise, negative = clockwise)
-  // Alternate orbit directions for visual depth
   const direction = tech.orbit % 2 === 0 ? 1 : -1;
 
   gsap.to(state, {
@@ -413,12 +466,18 @@ techItems.forEach((tech) => {
     repeat: -1,
     ease: 'none',
     onUpdate: () => {
-      const x = Math.cos(state.angle) * radius;
-      const y = Math.sin(state.angle) * radius;
+      const r = RADII[tech.orbit];
+      if (r === 0) { iconEl.style.display = 'none'; return; }
+      iconEl.style.display = '';
+      const x = Math.cos(state.angle) * r;
+      const y = Math.sin(state.angle) * r;
       gsap.set(iconEl, { x, y, xPercent: -50, yPercent: -50 });
     },
   });
 });
+
+// Update orbit radii on resize
+window.addEventListener('resize', () => { RADII = getOrbitRadii(); });
 
 // ─── 5. PULSE BAR ─────────────────────────────────────────────────────────────
 const dots = document.querySelectorAll('.bar-dot');
@@ -434,7 +493,7 @@ setInterval(() => {
 const projectsGrid = document.getElementById('projects-grid');
 portfolioData.projects.forEach(project => {
   const card = document.createElement('div');
-  card.className = 'glass-card';
+  card.className = 'glass-card reveal';
   card.innerHTML = `
     <h3 style="font-size:1.25rem;margin-bottom:0.75rem;color:var(--cyan);font-family:'Comfortaa',sans-serif;">${project.title}</h3>
     <p style="color:var(--text-secondary);margin-bottom:1.25rem;font-size:0.9rem;line-height:1.6;">${project.description}</p>
@@ -444,13 +503,28 @@ portfolioData.projects.forEach(project => {
     <a href="${project.link}" target="_blank" style="color:var(--cyan);text-decoration:none;font-size:0.85rem;font-weight:600;">View Project →</a>
   `;
   projectsGrid.appendChild(card);
+
+  // 3D tilt on mouse-move (desktop only)
+  if (!isTouchDevice) {
+    card.addEventListener('mousemove', (e) => {
+      const r   = card.getBoundingClientRect();
+      const cx  = r.left + r.width  / 2;
+      const cy  = r.top  + r.height / 2;
+      const rx  = ((e.clientY - cy) / (r.height / 2)) * -6;
+      const ry  = ((e.clientX - cx) / (r.width  / 2)) *  6;
+      card.style.transform = `translateY(-8px) rotateX(${rx}deg) rotateY(${ry}deg)`;
+    });
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = '';
+    });
+  }
 });
 
 // ─── 7. CERTIFICATIONS SECTION ────────────────────────────────────────────────
 const certsGrid = document.getElementById('certs-grid');
 portfolioData.certifications.forEach(cert => {
   const card = document.createElement('div');
-  card.className = 'glass-card';
+  card.className = 'glass-card reveal';
   card.style.borderLeft = `3px solid ${cert.color}`;
   card.innerHTML = `
     <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.4rem;">${cert.date}</p>
@@ -458,6 +532,21 @@ portfolioData.certifications.forEach(cert => {
     <p style="font-weight:600;font-size:0.85rem;color:${cert.color}">${cert.issuer}</p>
   `;
   certsGrid.appendChild(card);
+
+  // 3D tilt on mouse-move (desktop only)
+  if (!isTouchDevice) {
+    card.addEventListener('mousemove', (e) => {
+      const r   = card.getBoundingClientRect();
+      const cx  = r.left + r.width  / 2;
+      const cy  = r.top  + r.height / 2;
+      const rx  = ((e.clientY - cy) / (r.height / 2)) * -5;
+      const ry  = ((e.clientX - cx) / (r.width  / 2)) *  5;
+      card.style.transform = `translateY(-6px) rotateX(${rx}deg) rotateY(${ry}deg)`;
+    });
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = '';
+    });
+  }
 });
 
 // ─── 8. REACH CARD — Mini Galaxy Background ────────────────────────────────────
@@ -472,26 +561,24 @@ if (reachCanvas) {
   sizeReachCanvas();
   window.addEventListener('resize', sizeReachCanvas);
 
-  // Tiny sparse star-field particles
   const REACH_COUNT = 180;
   const reachPts = Array.from({ length: REACH_COUNT }, () => ({
-    x:    Math.random(),   // 0‥1 normalized
+    x:    Math.random(),
     y:    Math.random(),
     r:    0.4 + Math.random() * 1.1,
     a:    0.05 + Math.random() * 0.3,
     hue:  170 + Math.random() * 45,
-    spd:  (Math.random() - 0.5) * 0.00012,  // very slow drift
+    spd:  (Math.random() - 0.5) * 0.00012,
   }));
 
-  // A few bright "arm" particles in a mini spiral
   const MINI_ARMS = 2;
   const miniArm = Array.from({ length: 60 }, (_, i) => {
     const arm = i % MINI_ARMS;
     const t   = Math.random();
     const ang = (arm / MINI_ARMS) * Math.PI * 2 + t * Math.PI * 3;
-    const rad = t * 0.18;   // fraction of card width
+    const rad = t * 0.18;
     return {
-      ox: 0.75 + Math.cos(ang) * rad,  // right-hand corner
+      ox: 0.75 + Math.cos(ang) * rad,
       oy: 0.55 + Math.sin(ang) * rad,
       a:  0.08 + Math.pow(1 - t, 0.5) * 0.35,
       r:  0.4 + Math.random() * 1.2,
@@ -505,8 +592,6 @@ if (reachCanvas) {
     const W = reachCanvas.width;
     const H = reachCanvas.height;
     rc.clearRect(0, 0, W, H);
-
-    // Sparse background stars
     for (const p of reachPts) {
       p.x = (p.x + p.spd + 1) % 1;
       rc.beginPath();
@@ -514,8 +599,6 @@ if (reachCanvas) {
       rc.fillStyle = `hsla(${p.hue}, 50%, 75%, ${p.a})`;
       rc.fill();
     }
-
-    // Mini spiral in the corner
     const gx = W * 0.78;
     const gy = H * 0.52;
     rc.save();
@@ -529,7 +612,6 @@ if (reachCanvas) {
       rc.fillStyle = `hsla(${p.hue}, 60%, 72%, ${p.a})`;
       rc.fill();
     }
-    // Core glow
     const cg = rc.createRadialGradient(0, 0, 0, 0, 0, 28);
     cg.addColorStop(0,   'rgba(0,217,255,0.18)');
     cg.addColorStop(0.5, 'rgba(0,200,220,0.06)');
@@ -539,9 +621,54 @@ if (reachCanvas) {
     rc.fillStyle = cg;
     rc.fill();
     rc.restore();
-
     miniAngle += 0.0004;
     requestAnimationFrame(drawReachGalaxy);
   }
   drawReachGalaxy();
 }
+
+// ─── 9. SCROLL REVEAL (IntersectionObserver) ───────────────────────────────────
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+    // Stagger siblings in same grid
+    const grid = entry.target.parentElement;
+    const siblings = grid ? [...grid.querySelectorAll('.reveal:not(.in-view)')] : [];
+    siblings.forEach((el, i) => {
+      setTimeout(() => el.classList.add('in-view'), i * 110);
+    });
+    entry.target.classList.add('in-view');
+    revealObserver.unobserve(entry.target);
+  });
+}, { threshold: 0.1 });
+
+const titleObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('in-view');
+      titleObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.25 });
+
+document.querySelectorAll('.section-title, .section-tag').forEach(el => titleObserver.observe(el));
+document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+// ─── 10. WORKFLOW STEP STAGGER ─────────────────────────────────────────────────
+const workflowObs = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+    const steps      = document.querySelectorAll('.workflow-step');
+    const connectors = document.querySelectorAll('.wf-connector');
+    steps.forEach((step, i) => {
+      setTimeout(() => step.classList.add('wf-visible'), i * 120);
+    });
+    connectors.forEach((conn, i) => {
+      setTimeout(() => conn.classList.add('wf-visible'), i * 120 + 80);
+    });
+    workflowObs.unobserve(entry.target);
+  });
+}, { threshold: 0.2 });
+
+const workflowRow = document.querySelector('.workflow-row');
+if (workflowRow) workflowObs.observe(workflowRow);
